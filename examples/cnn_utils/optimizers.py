@@ -11,7 +11,7 @@ def get_optimizer(model, args, batch_first=True, use_Adam=False):
     if use_Adam:
         optimizer = optim.Adam(
             model.parameters(),
-            lr=args.base_lr * hvd.size()
+            lr=args.base_lr
         )
     else:
         optimizer = optim.SGD(
