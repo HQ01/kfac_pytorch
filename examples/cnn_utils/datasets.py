@@ -201,7 +201,7 @@ def unet_transforms(scale=None, angle=None, flip_prob=None):
     if flip_prob is not None:
         transform_list.append(HorizontalFlip(flip_prob))
 
-    return Compose(transform_list)
+    return transforms.Compose(transform_list)
 
 
 class Scale(object):
