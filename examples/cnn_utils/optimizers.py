@@ -5,15 +5,21 @@ import torch.optim as optim
 sys.path.append('..')
 from utils import create_lr_schedule
 
-def get_optimizer(model, args, batch_first=True):
+def get_optimizer(model, args, batch_first=True, use_Adam=False):
     use_kfac = True if args.kfac_update_freq > 0 else False
 
-    optimizer = optim.SGD(
-        model.parameters(),
-        lr=args.base_lr, 
-        momentum=args.momentum,
-        weight_decay=args.weight_decay
-    )
+    if use_Adam:
+        optimizer = optim.Adam(
+            model.parameters(),
+            lr=args.base_lr * hvd.size()
+        )
+    else:
+        optimizer = optim.SGD(
+            model.parameters(),
+            lr=args.base_lr, 
+            momentum=args.momentum,
+            weight_decay=args.weight_decay
+        )
 
     if args.kfac_comm_method == 'comm-opt':
         comm_method=kfac.CommMethod.COMM_OPT
@@ -70,5 +76,9 @@ def get_optimizer(model, args, batch_first=True):
     if use_kfac:
         lr_scheduler.append(optim.lr_scheduler.LambdaLR(preconditioner, lrs))
         lr_scheduler.append(kfac_param_scheduler)
+    else:
+        if use_adam:
+            # Adam by default doesn't use lr_scheduler
+            lr_scheduler = None
 
     return optimizer, preconditioner, lr_scheduler

@@ -42,6 +42,9 @@ class Metric(object):
         comm.backend.allreduce(val, async_op=False)
         self.total += val.cpu()
         self.n += n
+    def single_thread_update(self, val, n=1):
+        self.total += val.cpu()
+        self.n += n
 
     @property
     def avg(self):
