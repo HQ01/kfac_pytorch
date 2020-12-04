@@ -264,7 +264,7 @@ def make_sampler_and_loader(args, train_dataset, val_dataset, single_process_val
 
 
 
-    def dsc(y_pred, y_true, lcc=True):
+def dsc(y_pred, y_true, lcc=True):
     y_pred = np.round(y_pred).astype(int)
     y_true = np.round(y_true).astype(int)
     if lcc and np.any(y_pred): 
