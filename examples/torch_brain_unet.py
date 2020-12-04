@@ -16,7 +16,7 @@ import cnn_utils.optimizers as optimizers
 from cnn_utils.unet import UNet, DiceLoss
 
 from torchsummary import summary
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 from utils import save_checkpoint
 from tqdm import tqdm
 
@@ -203,7 +203,7 @@ def main():
 
     os.makedirs(args.log_dir, exist_ok=True)
     args.checkpoint_format = os.path.join(args.log_dir, args.checkpoint_format)
-    args.log_writer = SummaryWriter(args.log_dir) if args.verbose else None
+    args.log_writer = True if args.verbose else None
 
     args.resume_from_epoch = 0
     for try_epoch in range(args.epochs, 0, -1):

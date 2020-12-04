@@ -86,11 +86,13 @@ def train(epoch,
                     optimizer.param_groups[0]['lr']))
             t.update(1)
 
-    if args.log_writer is not None:
-        args.log_writer.add_scalar('train/loss', train_loss.avg, epoch)
+    # if args.log_writer:
+        # print('train/loss', )
+        # args.log_writer.add_scalar('train/loss', train_loss.avg, epoch)
         # args.log_writer.add_scalar('train/accuracy', train_accuracy.avg, epoch)
-        args.log_writer.add_scalar('train/lr', optimizer.param_groups[0]['lr'],
-                                    epoch)
+        #args.log_writer.add_scalar('train/lr', optimizer.param_groups[0]['lr'],
+        #                            epoch)
+    #    continue
 
 
 def test(epoch, 
@@ -139,6 +141,7 @@ def test(epoch,
                             mean_dsc),
                             refresh=False)
 
-    if args.log_writer is not None:
-        args.log_writer.add_scalar('val/loss', val_loss.avg, epoch)
-        args.log_writer.add_scalar('val/mean_dsc', mean_dsc, epoch)
+    # if args.log_writer:
+    #    continue
+        #args.log_writer.add_scalar('val/loss', val_loss.avg, epoch)
+        #args.log_writer.add_scalar('val/mean_dsc', mean_dsc, epoch)
