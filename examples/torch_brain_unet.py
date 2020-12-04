@@ -76,7 +76,7 @@ def parse_args():
 
     # Dataset settings
     parser.add_argument(
-        "--images", type=str, default="../kaggle_3m", help="root folder with images"
+        "--images", type=str, default="./kaggle_3m", help="root folder with images"
     )
     parser.add_argument(
         "--image-size",
