@@ -21,8 +21,8 @@ def train(epoch,
     # train_accuracy = Metric('train_accuracy')
     scaler = args.grad_scaler if 'grad_scaler' in args else None
 
+    # bar_format='{l_bar}{bar:10}{r_bar}',
     with tqdm(total=len(train_loader),
-              bar_format='{l_bar}{bar:10}{r_bar}',
               desc='Epoch {:3d}/{:3d}'.format(epoch, args.epochs),
               disable=not args.verbose) as t:
         for batch_idx, (data, target) in enumerate(train_loader):
@@ -106,8 +106,8 @@ def test(epoch,
 
     validation_pred, validation_true = [], []
 
+    # bar_format='{l_bar}{bar:10}|{postfix}',
     with tqdm(total=len(val_loader),
-              bar_format='{l_bar}{bar:10}|{postfix}',
               desc='             '.format(epoch, args.epochs),
               disable=not args.verbose) as t:
         with torch.no_grad():
