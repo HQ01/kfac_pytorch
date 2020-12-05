@@ -116,7 +116,7 @@ def test(epoch,
                     data, target = data.cuda(), target.cuda()
                 output = model(data)
                 loss = loss_func(output, target)
-                output_np, target_np = output.detach().cpu().numpy(), target.detached().cpu().numpy()
+                output_np, target_np = output.detach().cpu().numpy(), target.detach().cpu().numpy()
                 validation_pred.extend(
                     [output_np[s] for s in range(output_np.shape[0])]
                 )
