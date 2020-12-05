@@ -134,7 +134,7 @@ def test(epoch,
                         dsc_per_volume(
                             validation_pred,
                             validation_true,
-                            val_loader.dataset.pation_slice_index,
+                            val_loader.dataset.patient_slice_index,
                         )
                     )
                     t.set_postfix_str("\b\b val_loss: {:.4f}, val_mean_dsc_value: {:.2f}%".format(
