@@ -3,6 +3,7 @@ import sys
 import torch
 import numpy as np
 from tqdm import tqdm
+from medpy.filter.binary import largest_connected_component
 
 sys.path.append('..')
 from utils import Metric, accuracy
