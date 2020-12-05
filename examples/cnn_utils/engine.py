@@ -142,6 +142,18 @@ def test(epoch,
                             mean_dsc),
                             refresh=False)
 
+
+def dsc_per_volume(validation_pred, validation_true, patient_slice_index):
+    dsc_list = []
+    num_slices = np.bincount([p[0] for p in patient_slice_index])
+    index = 0
+    for p in range(len(num_slices)):
+        y_pred = np.array(validation_pred[index : index + num_slices[p]])
+        y_true = np.array(validation_true[index : index + num_slices[p]])
+        dsc_list.append(dsc(y_pred, y_true))
+        index += num_slices[p]
+    return dsc_list
+
     # if args.log_writer:
     #    continue
         #args.log_writer.add_scalar('val/loss', val_loss.avg, epoch)
