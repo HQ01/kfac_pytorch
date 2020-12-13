@@ -26,7 +26,7 @@ def train(epoch,
     # bar_format='{l_bar}{bar:10}{r_bar}',
     with tqdm(total=len(train_loader),
               desc='Epoch {:3d}/{:3d}'.format(epoch, args.epochs),
-              disable=not args.verbose) as t:
+              disable=True) as t:
         for batch_idx, (data, target) in enumerate(train_loader):
             if args.cuda:
                 data, target = data.cuda(), target.cuda()
@@ -83,10 +83,11 @@ def train(epoch,
                 else:
                     optimizer.step()
 
-            t.set_postfix_str("loss: {:.4f}, lr: {:.4f}".format(
-                    train_loss.avg,
-                    optimizer.param_groups[0]['lr']))
-            t.update(1)
+            # t.set_postfix_str("loss: {:.4f}, lr: {:.4f}".format(
+            #         train_loss.avg,
+            #         optimizer.param_groups[0]['lr']))
+            #t.update(1)
+    print("epoch: {}, train_loss: {:.4f}, lr: {:.4f}".format(epoch, train_loss.avg, optimizer.param_groups[0]['lr']))
 
     # if args.log_writer:
         # print('train/loss', )
@@ -111,7 +112,7 @@ def test(epoch,
     # bar_format='{l_bar}{bar:10}|{postfix}',
     with tqdm(total=len(val_loader),
               desc='             '.format(epoch, args.epochs),
-              disable=not args.verbose) as t:
+              disable=True) as t:
         with torch.no_grad():
             for i, (data, target) in enumerate(val_loader):
                 if args.cuda:
@@ -138,10 +139,11 @@ def test(epoch,
                             val_loader.dataset.patient_slice_index,
                         )
                     )
-                    t.set_postfix_str("\b\b val_loss: {:.4f}, val_mean_dsc_value: {:.2f}%".format(
-                            val_loss.avg,
-                            mean_dsc),
-                            refresh=False)
+                    print("val_loss: {:.4f}, val_mean_dsc_value: {:.2f}".format(val_loss.avg, mean_dsc))
+                    # t.set_postfix_str("\b\b val_loss: {:.4f}, val_mean_dsc_value: {:.2f}%".format(
+                    #         val_loss.avg,
+                    #         mean_dsc),
+                    #         refresh=False)
 
 def dsc(y_pred, y_true, lcc=True):
     y_pred = np.round(y_pred).astype(int)

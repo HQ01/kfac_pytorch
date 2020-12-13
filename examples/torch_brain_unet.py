@@ -238,7 +238,7 @@ def main():
 
     start = time.time()
     
-    for epoch in range(args.resume_from_epoch + 1, args.epochs + 1):
+    for epoch in tqdm(range(args.resume_from_epoch + 1, args.epochs + 1)):
         engine.train(epoch, model, optimizer, preconditioner, loss_func,
                      train_sampler, train_loader, args)
         if dist.get_rank() == 0:
