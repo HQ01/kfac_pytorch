@@ -238,20 +238,23 @@ def main():
 
     start = time.time()
     
-    for epoch in tqdm(range(args.resume_from_epoch + 1, args.epochs + 1)):
-        engine.train(epoch, model, optimizer, preconditioner, loss_func,
-                     train_sampler, train_loader, args)
-        if dist.get_rank() == 0:
-            engine.test(epoch, model, loss_func, val_loader, args)
-        if lr_schedules:
-            for scheduler in lr_schedules:
-                scheduler.step()
-        if (epoch > 0 and epoch % args.checkpoint_freq == 0 and 
-                dist.get_rank() == 0):
-            # Note: save model.module b/c model may be Distributed wrapper so saving
-            # the underlying model is more generic
-            save_checkpoint(model.module, optimizer, preconditioner, lr_schedules,
-                            args.checkpoint_format.format(epoch=epoch))
+    with tqdm(total=args.epochs - args.resume_from_epoch,
+              disable= (dist.get_rank() != 0)) as t:
+        for epoch in range(args.resume_from_epoch + 1, args.epochs + 1):
+            engine.train(epoch, model, optimizer, preconditioner, loss_func,
+                        train_sampler, train_loader, args)
+            if dist.get_rank() == 0:
+                engine.test(epoch, model, loss_func, val_loader, args)
+            if lr_schedules:
+                for scheduler in lr_schedules:
+                    scheduler.step()
+            if (epoch > 0 and epoch % args.checkpoint_freq == 0 and 
+                    dist.get_rank() == 0):
+                # Note: save model.module b/c model may be Distributed wrapper so saving
+                # the underlying model is more generic
+                save_checkpoint(model.module, optimizer, preconditioner, lr_schedules,
+                                args.checkpoint_format.format(epoch=epoch))
+            t.update(1)
 
     if args.verbose:
         print('\nTraining time: {}'.format(datetime.timedelta(seconds=time.time() - start)))
