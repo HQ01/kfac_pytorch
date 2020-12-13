@@ -87,7 +87,7 @@ def train(epoch,
             #         train_loss.avg,
             #         optimizer.param_groups[0]['lr']))
             #t.update(1)
-    print("epoch: {}, train_loss: {:.4f}, lr: {:.4f}".format(epoch, train_loss.avg, optimizer.param_groups[0]['lr']))
+    # print("epoch: {}, train_loss: {:.4f}, lr: {:.4f}".format(epoch, train_loss.avg, optimizer.param_groups[0]['lr']))
 
     # if args.log_writer:
         # print('train/loss', )
@@ -139,7 +139,7 @@ def test(epoch,
                             val_loader.dataset.patient_slice_index,
                         )
                     )
-                    print("val_loss: {:.4f}, val_mean_dsc_value: {:.2f}".format(val_loss.avg, mean_dsc))
+                    print("epoch {}, val_loss: {:.4f}, val_mean_dsc_value: {:.4f}".format(epoch, val_loss.avg, mean_dsc))
                     # t.set_postfix_str("\b\b val_loss: {:.4f}, val_mean_dsc_value: {:.2f}%".format(
                     #         val_loss.avg,
                     #         mean_dsc),
