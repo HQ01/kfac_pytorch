@@ -77,7 +77,7 @@ def get_optimizer(model, args, batch_first=True, use_Adam=False):
         lr_scheduler.append(optim.lr_scheduler.LambdaLR(preconditioner, lrs))
         lr_scheduler.append(kfac_param_scheduler)
     else:
-        if use_adam:
+        if use_Adam:
             # Adam by default doesn't use lr_scheduler
             lr_scheduler = None
 
