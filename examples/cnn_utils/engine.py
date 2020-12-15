@@ -70,6 +70,7 @@ def train(epoch,
                 optimizer.synchronize()
                 if preconditioner is not None:
                     preconditioner.step()
+                    preconditioner.memory_usage()
                 with optimizer.skip_synchronize():
                     optimizer.step()
             else:
