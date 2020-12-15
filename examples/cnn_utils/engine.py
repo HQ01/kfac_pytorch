@@ -70,8 +70,6 @@ def train(epoch,
                 optimizer.synchronize()
                 if preconditioner is not None:
                     preconditioner.step()
-                    usage = preconditioner.memory_usage()
-                    print("memory usage: ", usage)
                 with optimizer.skip_synchronize():
                     optimizer.step()
             else:
@@ -79,6 +77,8 @@ def train(epoch,
                     if scaler is not None:
                         scaler.unscale_(optimizer)
                     preconditioner.step()
+                    usage = preconditioner.memory_usage()
+                    print("memory usage: ", usage)
                 if scaler is not None:
                     scaler.step(optimizer)
                     scaler.update()
