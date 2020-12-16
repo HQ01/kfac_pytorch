@@ -151,7 +151,7 @@ def parse_args():
     parser.add_argument('--kfac-comm-method', type=str, default='hybrid-opt',
                         help='KFAC communication optimization strategy. One of comm-opt, '
                              'mem-opt, or hybrid_opt. (default: comm-opt)')
-    parser.add_argument('--kfac-grad-worker-fraction', type=float, default=0.5,
+    parser.add_argument('--kfac-grad-worker-fraction', type=float, default=1,
                         help='Fraction of workers to compute the gradients '
                              'when using HYBRID_OPT (default: 0.25)')
     
