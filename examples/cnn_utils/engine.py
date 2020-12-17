@@ -26,7 +26,7 @@ def train(epoch,
     # bar_format='{l_bar}{bar:10}{r_bar}',
     with tqdm(total=len(train_loader),
               desc='Epoch {:3d}/{:3d}'.format(epoch, args.epochs),
-              disable=True) as t:
+              disable=(dist.get_rank() != 0)) as t:
         for batch_idx, (data, target) in enumerate(train_loader):
             if args.cuda:
                 data, target = data.cuda(), target.cuda()

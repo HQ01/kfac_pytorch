@@ -151,7 +151,7 @@ def parse_args():
     parser.add_argument('--kfac-comm-method', type=str, default='hybrid-opt',
                         help='KFAC communication optimization strategy. One of comm-opt, '
                              'mem-opt, or hybrid_opt. (default: comm-opt)')
-    parser.add_argument('--kfac-grad-worker-fraction', type=float, default=1,
+    parser.add_argument('--kfac-grad-worker-fraction', type=float, default=0.25,
                         help='Fraction of workers to compute the gradients '
                              'when using HYBRID_OPT (default: 0.25)')
     
@@ -239,13 +239,13 @@ def main():
     start = time.time()
     
     with tqdm(total=args.epochs - args.resume_from_epoch,
-              disable= True) as t:
+              disable= (dist.get_rank() != 0)) as t:
               # use to be disable = (dist.get_rank() != 0)
         for epoch in range(args.resume_from_epoch + 1, args.epochs + 1):
             engine.train(epoch, model, optimizer, preconditioner, loss_func,
                         train_sampler, train_loader, args)
-            if dist.get_rank() == 0:
-                engine.test(epoch, model, loss_func, val_loader, args)
+            # if dist.get_rank() == 0:
+            #    engine.test(epoch, model, loss_func, val_loader, args)
             if lr_schedules:
                 for scheduler in lr_schedules:
                     scheduler.step()
