@@ -148,10 +148,10 @@ def parse_args():
                         help='Layer types to ignore registering with KFAC (default: [])')
     parser.add_argument('--coallocate-layer-factors', action='store_true', default=True,
                         help='Compute A and G for a single layer on the same worker. ')
-    parser.add_argument('--kfac-comm-method', type=str, default='hybrid-opt',
+    parser.add_argument('--kfac-comm-method', type=str, default='comm-opt',
                         help='KFAC communication optimization strategy. One of comm-opt, '
                              'mem-opt, or hybrid_opt. (default: comm-opt)')
-    parser.add_argument('--kfac-grad-worker-fraction', type=float, default=1,
+    parser.add_argument('--kfac-grad-worker-fraction', type=float, default=0.25,
                         help='Fraction of workers to compute the gradients '
                              'when using HYBRID_OPT (default: 0.25)')
     
