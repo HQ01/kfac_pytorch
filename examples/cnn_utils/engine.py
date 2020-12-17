@@ -1,6 +1,7 @@
 import math
 import sys
 import torch
+import torch.distributed as dist
 import numpy as np
 from tqdm import tqdm
 from medpy.filter.binary import largest_connected_component
