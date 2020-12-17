@@ -249,12 +249,12 @@ def main():
             if lr_schedules:
                 for scheduler in lr_schedules:
                     scheduler.step()
-            if (epoch > 0 and epoch % args.checkpoint_freq == 0 and 
-                    dist.get_rank() == 0):
-                # Note: save model.module b/c model may be Distributed wrapper so saving
-                # the underlying model is more generic
-                save_checkpoint(model.module, optimizer, preconditioner, lr_schedules,
-                                args.checkpoint_format.format(epoch=epoch))
+            # if (epoch > 0 and epoch % args.checkpoint_freq == 0 and 
+            #         dist.get_rank() == 0):
+            #     # Note: save model.module b/c model may be Distributed wrapper so saving
+            #     # the underlying model is more generic
+            #     save_checkpoint(model.module, optimizer, preconditioner, lr_schedules,
+            #                     args.checkpoint_format.format(epoch=epoch))
             t.update(1)
 
     if args.verbose:
