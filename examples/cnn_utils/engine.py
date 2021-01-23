@@ -113,40 +113,65 @@ def test(epoch,
     validation_pred, validation_true = [], []
 
     # bar_format='{l_bar}{bar:10}|{postfix}',
-    with tqdm(total=len(val_loader),
-              desc='             '.format(epoch, args.epochs),
-              disable=True) as t:
-        with torch.no_grad():
-            for i, (data, target) in enumerate(val_loader):
-                if args.cuda:
-                    data, target = data.cuda(), target.cuda()
-                output = model(data)
-                loss = loss_func(output, target)
-                output_np, target_np = output.detach().cpu().numpy(), target.detach().cpu().numpy()
-                validation_pred.extend(
-                    [output_np[s] for s in range(output_np.shape[0])]
-                )
-                validation_true.extend(
-                    [target_np[s] for s in range(target_np.shape[0])]
-                )
+    with torch.no_grad():
+        for i, (data, target) in enumerate(val_loader):
+            if args.cuda:
+                data, target = data.cuda(), target.cuda()
+            output = model(data)
+            loss = loss_func(output, target)
+            output_np, target_np = output.detach().cpu().numpy(), target.detach().cpu().numpy()
+            validation_pred.extend(
+                [output_np[s] for s in range(output_np.shape[0])]
+            )
+            validation_true.extend(
+                [target_np[s] for s in range(target_np.shape[0])]
+            )
 
-                val_loss.single_thread_update(loss)
-                # val_accuracy.update(accuracy(output, target))
-
-                t.update(1)
-                if i + 1 == len(val_loader):
-                    mean_dsc = np.mean(
-                        dsc_per_volume(
-                            validation_pred,
-                            validation_true,
-                            val_loader.dataset.patient_slice_index,
-                        )
+            val_loss.single_thread_update(loss)
+            # val_accuracy.update(accuracy(output, target))
+            if i + 1 == len(val_loader):
+                mean_dsc = np.mean(
+                    dsc_per_volume(
+                        validation_pred,
+                        validation_true,
+                        val_loader.dataset.patient_slice_index,
                     )
-                    print("epoch {}, val_loss: {:.4f}, val_mean_dsc_value: {:.4f}".format(epoch, val_loss.avg, mean_dsc))
-                    # t.set_postfix_str("\b\b val_loss: {:.4f}, val_mean_dsc_value: {:.2f}%".format(
-                    #         val_loss.avg,
-                    #         mean_dsc),
-                    #         refresh=False)
+                )
+                print("epoch {}, val_loss: {:.4f}, val_mean_dsc_value: {:.4f}\n".format(epoch, val_loss.avg, mean_dsc))
+    # with tqdm(total=len(val_loader),
+    #           desc='             '.format(epoch, args.epochs),
+    #           disable=True) as t:
+    #     with torch.no_grad():
+    #         for i, (data, target) in enumerate(val_loader):
+    #             if args.cuda:
+    #                 data, target = data.cuda(), target.cuda()
+    #             output = model(data)
+    #             loss = loss_func(output, target)
+    #             output_np, target_np = output.detach().cpu().numpy(), target.detach().cpu().numpy()
+    #             validation_pred.extend(
+    #                 [output_np[s] for s in range(output_np.shape[0])]
+    #             )
+    #             validation_true.extend(
+    #                 [target_np[s] for s in range(target_np.shape[0])]
+    #             )
+
+    #             val_loss.single_thread_update(loss)
+    #             # val_accuracy.update(accuracy(output, target))
+
+    #             t.update(1)
+    #             if i + 1 == len(val_loader):
+    #                 mean_dsc = np.mean(
+    #                     dsc_per_volume(
+    #                         validation_pred,
+    #                         validation_true,
+    #                         val_loader.dataset.patient_slice_index,
+    #                     )
+    #                 )
+    #                 print("epoch {}, val_loss: {:.4f}, val_mean_dsc_value: {:.4f}".format(epoch, val_loss.avg, mean_dsc))
+    #                 # t.set_postfix_str("\b\b val_loss: {:.4f}, val_mean_dsc_value: {:.2f}%".format(
+    #                 #         val_loss.avg,
+    #                 #         mean_dsc),
+    #                 #         refresh=False)
 
 def dsc(y_pred, y_true, lcc=True):
     y_pred = np.round(y_pred).astype(int)
