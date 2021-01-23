@@ -25,66 +25,123 @@ def train(epoch,
     scaler = args.grad_scaler if 'grad_scaler' in args else None
 
     # bar_format='{l_bar}{bar:10}{r_bar}',
-    with tqdm(total=len(train_loader),
-              desc='Epoch {:3d}/{:3d}'.format(epoch, args.epochs),
-              disable=(dist.get_rank() != 0)) as t:
-        for batch_idx, (data, target) in enumerate(train_loader):
-            if args.cuda:
-                data, target = data.cuda(), target.cuda()
-            optimizer.zero_grad()
+    for batch_idx, (data, target) in enumerate(train_loader):
+        if args.cuda:
+            data, target = data.cuda(), target.cuda()
+        optimizer.zero_grad()
 
-            batch_idx = range(0, len(data), args.batch_size)
-            for i in batch_idx:
-                data_batch = data[i:i + args.batch_size]
-                target_batch = target[i:i + args.batch_size]
+        batch_idx = range(0, len(data), args.batch_size)
+        for i in batch_idx:
+            data_batch = data[i:i + args.batch_size]
+            target_batch = target[i:i + args.batch_size]
 
-                if scaler is not None:
-                    with torch.cuda.amp.autocast():
-                        output = model(data_batch)
-                        loss = loss_func(output, target_batch)
-                else:
+            if scaler is not None:
+                with torch.cuda.amp.autocast():
                     output = model(data_batch)
                     loss = loss_func(output, target_batch)
-                
-                loss = loss / args.batches_per_allreduce
+            else:
+                output = model(data_batch)
+                loss = loss_func(output, target_batch)
+            
+            loss = loss / args.batches_per_allreduce
 
-                if args.horovod:
-                    loss.backward()
-                else:
-                    if i < batch_idx[-1]:
-                        with model.no_sync():
-                            if scaler is not None:
-                                scaler.scale(loss).backward()
-                            else:
-                                loss.backward()
-                    else:
+            if args.horovod:
+                loss.backward()
+            else:
+                if i < batch_idx[-1]:
+                    with model.no_sync():
                         if scaler is not None:
                             scaler.scale(loss).backward()
                         else:
                             loss.backward()
-
-                with torch.no_grad():            
-                    train_loss.update(loss)
-                    # train_accuracy.update(accuracy(output, target_batch))
-
-            if args.horovod:
-                optimizer.synchronize()
-                if preconditioner is not None:
-                    preconditioner.step()
-                with optimizer.skip_synchronize():
-                    optimizer.step()
-            else:
-                if preconditioner is not None:
-                    if scaler is not None:
-                        scaler.unscale_(optimizer)
-                    preconditioner.step()
-                    # usage = preconditioner.memory_usage()
-                    # print(usage)
-                if scaler is not None:
-                    scaler.step(optimizer)
-                    scaler.update()
                 else:
-                    optimizer.step()
+                    if scaler is not None:
+                        scaler.scale(loss).backward()
+                    else:
+                        loss.backward()
+
+            with torch.no_grad():            
+                train_loss.update(loss)
+                # train_accuracy.update(accuracy(output, target_batch))
+
+        if args.horovod:
+            optimizer.synchronize()
+            if preconditioner is not None:
+                preconditioner.step()
+            with optimizer.skip_synchronize():
+                optimizer.step()
+        else:
+            if preconditioner is not None:
+                if scaler is not None:
+                    scaler.unscale_(optimizer)
+                preconditioner.step()
+                # usage = preconditioner.memory_usage()
+                # print(usage)
+            if scaler is not None:
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                optimizer.step()
+    # with tqdm(total=len(train_loader),
+    #           desc='Epoch {:3d}/{:3d}'.format(epoch, args.epochs),
+    #           disable=(dist.get_rank() != 0)) as t:
+    #     for batch_idx, (data, target) in enumerate(train_loader):
+    #         if args.cuda:
+    #             data, target = data.cuda(), target.cuda()
+    #         optimizer.zero_grad()
+
+    #         batch_idx = range(0, len(data), args.batch_size)
+    #         for i in batch_idx:
+    #             data_batch = data[i:i + args.batch_size]
+    #             target_batch = target[i:i + args.batch_size]
+
+    #             if scaler is not None:
+    #                 with torch.cuda.amp.autocast():
+    #                     output = model(data_batch)
+    #                     loss = loss_func(output, target_batch)
+    #             else:
+    #                 output = model(data_batch)
+    #                 loss = loss_func(output, target_batch)
+                
+    #             loss = loss / args.batches_per_allreduce
+
+    #             if args.horovod:
+    #                 loss.backward()
+    #             else:
+    #                 if i < batch_idx[-1]:
+    #                     with model.no_sync():
+    #                         if scaler is not None:
+    #                             scaler.scale(loss).backward()
+    #                         else:
+    #                             loss.backward()
+    #                 else:
+    #                     if scaler is not None:
+    #                         scaler.scale(loss).backward()
+    #                     else:
+    #                         loss.backward()
+
+    #             with torch.no_grad():            
+    #                 train_loss.update(loss)
+    #                 # train_accuracy.update(accuracy(output, target_batch))
+
+    #         if args.horovod:
+    #             optimizer.synchronize()
+    #             if preconditioner is not None:
+    #                 preconditioner.step()
+    #             with optimizer.skip_synchronize():
+    #                 optimizer.step()
+    #         else:
+    #             if preconditioner is not None:
+    #                 if scaler is not None:
+    #                     scaler.unscale_(optimizer)
+    #                 preconditioner.step()
+    #                 # usage = preconditioner.memory_usage()
+    #                 # print(usage)
+    #             if scaler is not None:
+    #                 scaler.step(optimizer)
+    #                 scaler.update()
+    #             else:
+    #                 optimizer.step()
 
             # t.set_postfix_str("loss: {:.4f}, lr: {:.4f}".format(
             #         train_loss.avg,
