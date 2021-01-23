@@ -142,7 +142,7 @@ def test(epoch,
                             val_loader.dataset.patient_slice_index,
                         )
                     )
-                    # print("epoch {}, val_loss: {:.4f}, val_mean_dsc_value: {:.4f}".format(epoch, val_loss.avg, mean_dsc))
+                    print("epoch {}, val_loss: {:.4f}, val_mean_dsc_value: {:.4f}".format(epoch, val_loss.avg, mean_dsc))
                     # t.set_postfix_str("\b\b val_loss: {:.4f}, val_mean_dsc_value: {:.2f}%".format(
                     #         val_loss.avg,
                     #         mean_dsc),

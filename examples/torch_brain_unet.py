@@ -21,36 +21,6 @@ from utils import save_checkpoint
 from tqdm import tqdm
 
 
-
-
-
-
-
-
-# old unet import
-# import argparse
-# import json
-# import os
-# import math
-
-# import numpy as np
-# import torch
-# import torch.optim as optim
-# from torch.utils.data import DataLoader
-# from torch.optim.lr_scheduler import LambdaLR
-# from tqdm import tqdm
-
-# from dataset import BrainSegmentationDataset as Dataset
-# from logger import Logger
-# from loss import DiceLoss
-# from transform import transforms
-# from unet import UNet
-# from utils import log_images, dsc
-
-# import horovod.torch as hvd
-# import kfac
-
-
 # code start
 try:
     from torch.cuda.amp import autocast, GradScaler
@@ -187,6 +157,7 @@ def main():
     args.base_lr = args.base_lr * dist.get_world_size() * args.batches_per_allreduce
     args.verbose = True if dist.get_rank() == 0 else False
     args.horovod = False
+    args.timing = True
 
     train_sampler, train_loader, _, val_loader = datasets.get_unet(args)
     model = UNet(in_channels=3, out_channels=1)
@@ -240,12 +211,11 @@ def main():
     
     with tqdm(total=args.epochs - args.resume_from_epoch,
               disable= (dist.get_rank() != 0)) as t:
-              # use to be disable = (dist.get_rank() != 0)
         for epoch in range(args.resume_from_epoch + 1, args.epochs + 1):
             engine.train(epoch, model, optimizer, preconditioner, loss_func,
                         train_sampler, train_loader, args)
-            # if dist.get_rank() == 0:
-            #    engine.test(epoch, model, loss_func, val_loader, args)
+            if dist.get_rank() == 0:
+               engine.test(epoch, model, loss_func, val_loader, args)
             if lr_schedules:
                 for scheduler in lr_schedules:
                     scheduler.step()
@@ -257,7 +227,7 @@ def main():
             #                     args.checkpoint_format.format(epoch=epoch))
             t.update(1)
 
-    if args.verbose:
+    if args.timing:
         print('\nTraining time: {}'.format(datetime.timedelta(seconds=time.time() - start)))
 
 
