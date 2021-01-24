@@ -164,11 +164,11 @@ def main():
     model = UNet(in_channels=3, out_channels=1)
 
 
-    if args.verbose:
-        summary(model, (3, args.image_size, args.image_size))
-
     device = 'cpu' if not args.cuda else 'cuda' 
     model.to(device)
+
+    if args.verbose:
+        summary(model, (3, args.image_size, args.image_size))
 
     model = torch.nn.parallel.DistributedDataParallel(model, 
             device_ids=[args.local_rank])
