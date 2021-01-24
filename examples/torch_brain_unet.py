@@ -17,7 +17,6 @@ import cnn_utils.optimizers as optimizers
 from cnn_utils.unet import UNet, DiceLoss
 
 from torchsummary import summary
-# from torch.utils.tensorboard import SummaryWriter
 from utils import save_checkpoint
 from tqdm import tqdm
 
@@ -95,7 +94,7 @@ def parse_args():
                         help='epochs between checkpoints')
 
     # KFAC Parameters
-    parser.add_argument('--kfac-update-freq', type=int, default=200,
+    parser.add_argument('--kfac-update-freq', type=int, default=0,
                         help='iters between kfac inv ops (0 disables kfac) (default: 10)')
     parser.add_argument('--kfac-cov-update-freq', type=int, default=20,
                         help='iters between kfac cov ops (default: 1)')
