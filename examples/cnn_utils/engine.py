@@ -194,7 +194,8 @@ def test(epoch,
                         val_loader.dataset.patient_slice_index,
                     )
                 )
-                print("epoch {}, val_loss: {:.4f}, val_mean_dsc_value: {:.4f}\n".format(epoch, val_loss.avg, mean_dsc))
+                print("epoch {}, val_loss: {:.4f}, val_mean_dsc_value: {:.4f}".format(epoch, val_loss.avg, mean_dsc))
+    return val_loss.avg, mean_dsc
     # with tqdm(total=len(val_loader),
     #           desc='             '.format(epoch, args.epochs),
     #           disable=True) as t:

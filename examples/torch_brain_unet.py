@@ -1,6 +1,7 @@
 import argparse
 import time
 import os
+import csv
 import json
 import sys
 import math
@@ -33,10 +34,12 @@ def parse_args():
     parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Example')
     parser.add_argument('--data-dir', type=str, default='/tmp/cifar10', metavar='D',
                         help='directory to download cifar10 dataset to')
-    parser.add_argument('--log-dir', default='./logs/torch_cifar10',
+    parser.add_argument('--log-dir', default='./logs/torch_kfac_unet',
                         help='TensorBoard/checkpoint directory')
     parser.add_argument('--checkpoint-format', default='checkpoint_{epoch}.pth.tar',
                         help='checkpoint file format')
+    parser.add_argument('--loss-output-path', default='loss_output_{}.csv'.format(time.strftime("%Y%m%d-%H%M%S")),
+                        help='loss output path')
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
     parser.add_argument('--seed', type=int, default=42, metavar='S',
@@ -174,6 +177,7 @@ def main():
 
     os.makedirs(args.log_dir, exist_ok=True)
     args.checkpoint_format = os.path.join(args.log_dir, args.checkpoint_format)
+    args.loss_output_path = os.path.join(args.log_dir, args.loss_output_path)
     args.log_writer = True if args.verbose else None
 
     args.resume_from_epoch = 0
@@ -207,6 +211,10 @@ def main():
                 preconditioner is not None):
             preconditioner.load_state_dict(checkpoint['preconditioner'])
 
+    # record the best epoch measure by mean dsc accuracy
+    if args.verbose:
+        val_losses, val_accuracies = [], []
+        best_val_loss, best_val_acc, best_val_epoch = -1, -1, -1
     start = time.time()
     
     with tqdm(total=args.epochs - args.resume_from_epoch,
@@ -214,8 +222,12 @@ def main():
         for epoch in range(args.resume_from_epoch + 1, args.epochs + 1):
             engine.train(epoch, model, optimizer, preconditioner, loss_func,
                         train_sampler, train_loader, args)
-            if dist.get_rank() == 0:
-               engine.test(epoch, model, loss_func, val_loader, args)
+            if args.verbose:
+               cur_val_loss, cur_val_acc = engine.test(epoch, model, loss_func, val_loader, args)
+               val_losses.append(cur_val_loss)
+               val_accuracies.append(cur_val_acc)
+               if cur_val_acc > best_val_acc:
+                   best_val_loss, best_val_acc, best_val_epoch = cur_val_loss, cur_val_acc, epoch
             if lr_schedules:
                 for scheduler in lr_schedules:
                     scheduler.step()
@@ -227,8 +239,18 @@ def main():
             #                     args.checkpoint_format.format(epoch=epoch))
             t.update(1)
 
-    if args.timing:
-        print('\nTraining time: {}'.format(datetime.timedelta(seconds=time.time() - start)))
+    if args.verbose:
+        print("best epoch {}, val loss {}, val acc {}".format(best_val_epoch, best_val_loss, best_val_acc))
+        if args.timing:
+            print('\nTraining time: {}'.format(datetime.timedelta(seconds=time.time() - start)))
+        with open(args.loss_output_path, 'w', newline='') as csvfile:
+            header = ['val_loss', 'val_acc']
+            writer = csv.DictWriter(csvfile, fieldnames=header)
+            writer.writeheader()
+            for loss, acc in zip(val_losses,val_accuracies):
+                writer.writerow({'val_loss' : loss,
+                                'val_acc' : acc})
+
 
 
 if __name__ == '__main__': 
