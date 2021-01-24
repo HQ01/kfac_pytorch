@@ -133,6 +133,7 @@ def parse_args():
 
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
+    print("args.cuda is ", args.cuda)
 
     return args
 
