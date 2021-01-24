@@ -94,10 +94,10 @@ def parse_args():
                         help='epochs between checkpoints')
 
     # KFAC Parameters
-    parser.add_argument('--kfac-update-freq', type=int, default=0,
-                        help='iters between kfac inv ops (0 disables kfac) (default: 10)')
+    parser.add_argument('--kfac-update-freq', type=int, default=200,
+                        help='iters between kfac inv ops (0 disables kfac) (default: 200)')
     parser.add_argument('--kfac-cov-update-freq', type=int, default=20,
-                        help='iters between kfac cov ops (default: 1)')
+                        help='iters between kfac cov ops (default: 20)')
     parser.add_argument('--kfac-update-freq-alpha', type=float, default=10,
                         help='KFAC update freq multiplier (default: 10)')
     parser.add_argument('--kfac-update-freq-decay', nargs='+', type=int, default=None,
