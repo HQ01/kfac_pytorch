@@ -31,9 +31,7 @@ except:
 
 def parse_args():
     # General settings
-    parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Example')
-    parser.add_argument('--data-dir', type=str, default='/tmp/cifar10', metavar='D',
-                        help='directory to download cifar10 dataset to')
+    parser = argparse.ArgumentParser(description='PyTorch brain unet Example')
     parser.add_argument('--log-dir', default='./logs/torch_kfac_unet',
                         help='TensorBoard/checkpoint directory')
     parser.add_argument('--checkpoint-format', default='checkpoint_{epoch}.pth.tar',
@@ -248,7 +246,7 @@ def main():
             writer = csv.DictWriter(csvfile, fieldnames=header)
             writer.writeheader()
             for loss, acc in zip(val_losses,val_accuracies):
-                writer.writerow({'val_loss' : loss,
+                writer.writerow({'val_loss' : loss.item(),
                                 'val_acc' : acc})
 
 
